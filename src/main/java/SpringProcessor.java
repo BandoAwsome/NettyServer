@@ -25,7 +25,7 @@ public class SpringProcessor {
     public void init() {
         AnnotationConfigApplicationContext springContext = new AnnotationConfigApplicationContext();
         springContext.register(ApplicationConfig.class);
-        System.out.println("Spring启动");
+        System.out.println("-------------------Spring启动");
     }
 
 }
