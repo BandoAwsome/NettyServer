@@ -23,9 +23,8 @@ public class Main {
     public static void main(String[] args) {
         // 启动Spring
         SpringProcessor.getInstance().init();
-        // 启动Netty
-        startUp();
-
+        // 子线程启动Netty
+        new Thread(() -> startUp()).start();
     }
 
     /**

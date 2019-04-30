@@ -1,3 +1,4 @@
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
@@ -11,6 +12,9 @@ public class SpringProcessor {
     /** 单例 */
     private static final SpringProcessor instance = new SpringProcessor();
 
+    /** Spring容器 */
+    private AnnotationConfigApplicationContext applicationContext;
+
     private SpringProcessor() {}
 
     public static SpringProcessor getInstance() {
@@ -23,9 +27,15 @@ public class SpringProcessor {
      * @date: 2019/4/30 19:32
      */
     public void init() {
-        AnnotationConfigApplicationContext springContext = new AnnotationConfigApplicationContext();
-        springContext.register(ApplicationConfig.class);
+        applicationContext = new AnnotationConfigApplicationContext();
+        applicationContext.register(ApplicationConfig.class);
         System.out.println("-------------------Spring启动");
+
+    }
+
+    public Object getBean(String beanName) {
+        applicationContext.refresh();
+        return applicationContext.getBean(beanName);
     }
 
 }
