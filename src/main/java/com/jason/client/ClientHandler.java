@@ -2,10 +2,11 @@ package com.jason.client;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.CharsetUtil;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Netty客户端Handler
@@ -15,15 +16,18 @@ import io.netty.util.CharsetUtil;
  */
 public class ClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
+    /** id生成器 */
+    private static AtomicInteger idGenerater = new AtomicInteger(0);
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-//        System.out.println("Netty客户端激活");
-        ctx.channel().writeAndFlush(Unpooled.copiedBuffer("Hello Netty", CharsetUtil.UTF_8));
+        // 注册信道
+        ctx.channel().writeAndFlush(Unpooled.copiedBuffer("id:" + idGenerater.incrementAndGet(), CharsetUtil.UTF_8));
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
-        System.out.println("客户端收到信息：" + msg.toString());
+        System.out.println("客户端收到信息：" + msg.toString(CharsetUtil.UTF_8));
     }
 
     @Override
