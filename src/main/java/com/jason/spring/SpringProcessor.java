@@ -3,7 +3,7 @@ package com.jason.spring;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
- * Spring相关单例
+ * Spring管理器
  * @author zhuzhenhao
  * @version 1.0.0
  * @date 2019/4/30 19:27
@@ -35,7 +35,17 @@ public class SpringProcessor {
 
     }
 
+    /**
+     * 获得Spring管理的bean
+     * @param beanName
+     * @return: java.lang.Object
+     * @date: 2019/5/1 11:31
+     */
     public Object getBean(String beanName) {
+        if (applicationContext == null) {
+            // 未初始化
+            init();
+        }
         return applicationContext.getBean(beanName);
     }
 

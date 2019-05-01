@@ -1,9 +1,11 @@
 package com.jason.server;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.util.CharsetUtil;
 
 /**
  * Netty服务器Channel处理
@@ -15,7 +17,8 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        System.out.println("服务器收到信息：" + msg.toString());
+        ByteBuf in = (ByteBuf)msg;
+        System.out.println("服务器收到信息：" + in.toString(CharsetUtil.UTF_8));
         // 返回客户端回调
         ctx.channel().write("server echo");
     }
