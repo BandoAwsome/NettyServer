@@ -1,5 +1,7 @@
 package com.jason.server;
 
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
@@ -13,11 +15,18 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        System.out.println("收到信息：" + msg.toString());
+        System.out.println("服务器收到信息：" + msg.toString());
+        // 返回客户端回调
+        ctx.channel().write("server echo");
+    }
+
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("Channel激活");
+        System.out.println("服务器Channel激活，" + Thread.currentThread());
     }
 }

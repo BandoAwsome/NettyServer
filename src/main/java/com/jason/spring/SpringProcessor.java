@@ -1,4 +1,5 @@
-import org.springframework.context.ApplicationContext;
+package com.jason.spring;
+
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
@@ -29,12 +30,12 @@ public class SpringProcessor {
     public void init() {
         applicationContext = new AnnotationConfigApplicationContext();
         applicationContext.register(ApplicationConfig.class);
+        applicationContext.refresh();
         System.out.println("-------------------Spring启动");
 
     }
 
     public Object getBean(String beanName) {
-        applicationContext.refresh();
         return applicationContext.getBean(beanName);
     }
 
