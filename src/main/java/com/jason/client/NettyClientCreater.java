@@ -12,6 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -28,9 +32,10 @@ public class NettyClientCreater implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        // Spring启动后自动创建10个客户端进程
+        // 线程池
+        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(4, 600, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
         for (int i = 0; i < 10; i++) {
-            creat();
+            threadPool.execute(creat());
         }
     }
 
@@ -61,10 +66,11 @@ public class NettyClientCreater implements InitializingBean {
 
     /**
      * 异步创建一个客户端
-     * @return: void
+     * @return: java.lang.Runnable
      * @date: 2019/5/1 10:13
      */
-    public void creat() {
-        new Thread(() -> createClient()).start();
+    public Runnable creat() {
+        return () -> createClient();
     }
+
 }
