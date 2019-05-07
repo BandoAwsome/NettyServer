@@ -8,9 +8,6 @@ import com.jason.spring.SpringProcessor;
  */
 public class Main {
 
-    /** Netty监听端口 */
-    private static final int PORT = 2333;
-
     public static void main(String[] args) {
         // 启动Spring
         SpringProcessor.getInstance().init();

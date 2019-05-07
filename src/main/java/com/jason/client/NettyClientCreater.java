@@ -1,7 +1,6 @@
 package com.jason.client;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -12,11 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Netty测试客户端
@@ -32,11 +29,11 @@ public class NettyClientCreater implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        // 线程池
-        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(4, 600, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
-        for (int i = 0; i < 10; i++) {
-            threadPool.execute(creat());
-        }
+//        // 线程池
+//        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(4, 600, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
+//        for (int i = 0; i < 10; i++) {
+//            threadPool.execute(creat());
+//        }
     }
 
     /**

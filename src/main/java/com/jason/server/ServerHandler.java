@@ -1,6 +1,8 @@
 package com.jason.server;
 
+import com.jason.action.ActionBase;
 import com.jason.client.ChannelProcessor;
+import com.jason.spring.SpringProcessor;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -23,13 +25,21 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
             // 解析成字符串内容
             String content = in.toString(CharsetUtil.UTF_8);
             System.out.println("服务器收到信息：" + in.toString(CharsetUtil.UTF_8));
-            if (content.contains("id")) {
-                // 客户端注册信道
-                int id = Integer.parseInt(content.substring(content.indexOf(":") + 1));
-                ChannelProcessor.getInstance().addChannel(id, ctx.channel());
+//            if (content.contains("id")) {
+//                // 客户端注册信道
+//                int id = Integer.parseInt(content.substring(content.indexOf(":") + 1));
+//                ChannelProcessor.getInstance().addChannel(id, ctx.channel());
+//            }
+            String action = content.substring(0, content.indexOf("@"));
+            String method = content.substring(content.indexOf("@") + 1);
+            ActionBase actionBase = (ActionBase) SpringProcessor.getInstance().getBean(action);
+            if (actionBase == null) {
+                // 容错
+                throw new Exception();
             }
+            String result = actionBase.dealMessage(method);
             // 返回结果
-            ctx.channel().writeAndFlush(Unpooled.copiedBuffer("success", CharsetUtil.UTF_8));
+            ctx.channel().writeAndFlush(Unpooled.copiedBuffer(result, CharsetUtil.UTF_8));
         } catch (Exception e) {
             e.printStackTrace();
             // 返回结果

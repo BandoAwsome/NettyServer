@@ -30,9 +30,8 @@ public class SpringProcessor {
     public void init() {
         applicationContext = new AnnotationConfigApplicationContext();
         applicationContext.register(ApplicationConfig.class);
-        applicationContext.refresh();
         System.out.println("-------------------Spring启动");
-
+        applicationContext.refresh();
     }
 
     /**
