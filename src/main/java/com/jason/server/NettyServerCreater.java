@@ -65,6 +65,6 @@ public class NettyServerCreater implements InitializingBean {
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }}).run();
+        }}).start();
     }
 }
