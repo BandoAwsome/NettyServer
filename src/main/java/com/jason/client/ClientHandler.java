@@ -22,7 +22,10 @@ public class ClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         // 注册信道
-        ctx.channel().writeAndFlush(Unpooled.copiedBuffer("id:" + idGenerater.incrementAndGet(), CharsetUtil.UTF_8));
+//        ctx.channel().writeAndFlush(Unpooled.copiedBuffer("id:" + idGenerater.incrementAndGet(), CharsetUtil.UTF_8));
+        // 发接口
+//        ctx.channel().writeAndFlush(Unpooled.copiedBuffer("hotswap@hotswap", CharsetUtil.UTF_8));
+        ctx.channel().writeAndFlush(Unpooled.copiedBuffer("print@print", CharsetUtil.UTF_8));
     }
 
     @Override

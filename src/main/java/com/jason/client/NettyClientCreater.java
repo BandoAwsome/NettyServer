@@ -21,32 +21,32 @@ import java.util.concurrent.TimeUnit;
  * @version 1.0.0
  * @date 2019/5/1 9:47
  */
-@Component("nettyClient")
-public class NettyClientCreater implements InitializingBean {
+//@Component("nettyClient")
+public class NettyClientCreater { //implements InitializingBean {
 
-    @Autowired
-    Environment environment;
+//    @Autowired
+//    Environment environment;
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+//    @Override
+//    public void afterPropertiesSet() throws Exception {
 //        // 线程池
 //        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(4, 600, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
 //        for (int i = 0; i < 10; i++) {
 //            threadPool.execute(creat());
 //        }
-    }
+//    }
 
     /**
      * 创建一个客户端
      * @return: void
      * @date: 2019/5/1 10:10
      */
-    public void createClient () {
+    public static void createClient () {
         try {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(new NioEventLoopGroup())
                     .channel(NioSocketChannel.class)
-                    .remoteAddress("127.0.0.1", environment.getProperty("netty.server.port", Integer.class))
+                    .remoteAddress("127.0.0.1", 2333)
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
@@ -70,4 +70,7 @@ public class NettyClientCreater implements InitializingBean {
         return () -> createClient();
     }
 
+    public static void main(String[] args) {
+        new Thread(() -> createClient()).start();
+    }
 }
