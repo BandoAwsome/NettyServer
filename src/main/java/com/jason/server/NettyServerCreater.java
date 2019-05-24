@@ -1,12 +1,17 @@
 package com.jason.server;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.DelimiterBasedFrameDecoder;
+import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
+import io.netty.util.concurrent.DefaultEventExecutor;
+import io.netty.util.concurrent.EventExecutorGroup;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -47,13 +52,28 @@ public class NettyServerCreater implements InitializingBean {
         new Thread( () -> { try {
             ServerBootstrap serverBootstrap = new ServerBootstrap();
             EventLoopGroup bossGroup = new NioEventLoopGroup();
-            EventLoopGroup workerGroup = new NioEventLoopGroup();
+            EventLoopGroup workerGroup = new NioEventLoopGroup(1000);
             serverBootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
+                    // 设置为1024队列长度
+                    .option(ChannelOption.SO_BACKLOG, 1024)
+                    .option(ChannelOption.SO_REUSEADDR, true)
+                    .childOption(ChannelOption.TCP_NODELAY, true)
+                    .childOption(ChannelOption.SO_KEEPALIVE, true)
+                    // 设置高低水平位线
+                    .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(32 * 1024, 64*1024))
+                    .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                    .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                     .localAddress(new InetSocketAddress(environment.getProperty("netty.server.port", Integer.class)))
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         protected void initChannel(SocketChannel ch) throws Exception {
-                            // 加入自定义Handler
+                            String delimiter = "_$";
+                            // 将delimiter设置到DelimiterBasedFrameDecoder中，经过该解码一器进行处理之后，源数据将会
+                            // 被按照_$进行分隔，这里1024指的是分隔的最大长度，即当读取到1024个字节的数据之后，若还是未
+                            // 读取到分隔符，则舍弃当前数据段，因为其很有可能是由于码流紊乱造成的
+                            ch.pipeline().addLast(new DelimiterBasedFrameDecoder(1024, Unpooled.wrappedBuffer(delimiter.getBytes())));
+                            // 这是我们自定义的一个编码器，主要作用是在返回的响应数据最后添加分隔符
+                            ch.pipeline().addLast(new DelimiterBasedFrameEncoder(delimiter));
                             ch.pipeline().addLast(new ServerHandler());
                         }
                     });

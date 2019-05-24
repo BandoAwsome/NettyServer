@@ -1,16 +1,22 @@
 package com.jason.client;
 
+import com.jason.server.DelimiterBasedFrameEncoder;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.DelimiterBasedFrameDecoder;
+import io.netty.handler.codec.string.StringDecoder;
+import io.netty.util.CharsetUtil;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -21,20 +27,7 @@ import java.util.concurrent.TimeUnit;
  * @version 1.0.0
  * @date 2019/5/1 9:47
  */
-//@Component("nettyClient")
-public class NettyClientCreater { //implements InitializingBean {
-
-//    @Autowired
-//    Environment environment;
-
-//    @Override
-//    public void afterPropertiesSet() throws Exception {
-//        // 线程池
-//        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(4, 600, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
-//        for (int i = 0; i < 10; i++) {
-//            threadPool.execute(creat());
-//        }
-//    }
+public class NettyClientCreater {
 
     /**
      * 创建一个客户端
@@ -50,27 +43,27 @@ public class NettyClientCreater { //implements InitializingBean {
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
+                            String delimiter = "_$";
+                            // 对服务端返回的消息通过_$进行分隔，并且每次查找的最大大小为1024字节
+                            ch.pipeline().addLast(new DelimiterBasedFrameDecoder(1024, Unpooled.wrappedBuffer(delimiter.getBytes())));
+                            // 对客户端发送的数据进行编码，这里主要是在客户端发送的数据最后添加分隔符
+                            ch.pipeline().addLast(new DelimiterBasedFrameEncoder(delimiter));
                             ch.pipeline().addLast(new ClientHandler());
                         }
                     });
             ChannelFuture future = bootstrap.connect().sync();
-            System.out.println("--------------客户端：" + Thread.currentThread().toString() + " 启动");
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    /**
-     * 异步创建一个客户端
-     * @return: java.lang.Runnable
-     * @date: 2019/5/1 10:13
-     */
-    public Runnable creat() {
-        return () -> createClient();
-    }
-
     public static void main(String[] args) {
-        new Thread(() -> createClient()).start();
+        // 线程池
+        int num = 1;
+        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(4, 600, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
+        for (int i = 0; i < num; i++) {
+            threadPool.execute(() -> createClient());
+        }
     }
 }
