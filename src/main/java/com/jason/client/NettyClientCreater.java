@@ -75,7 +75,6 @@ public class NettyClientCreater {
                     ByteBuf byteBuf = Unpooled.buffer(msg.length);
                     byteBuf.writeBytes(msg);
                     session.getChannel().write(byteBuf);
-
                     if (i % 2000 == 0) {
                         session.getChannel().flush();
                     }
