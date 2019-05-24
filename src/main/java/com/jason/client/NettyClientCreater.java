@@ -1,25 +1,23 @@
 package com.jason.client;
 
-import com.jason.server.DelimiterBasedFrameEncoder;
+import com.jason.SessionUtil;
+import com.jason.TSession;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.DelimiterBasedFrameDecoder;
+import io.netty.handler.codec.FixedLengthFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
-import io.netty.util.CharsetUtil;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * Netty测试客户端
@@ -29,41 +27,64 @@ import java.util.concurrent.TimeUnit;
  */
 public class NettyClientCreater {
 
+    static TSession session = null;
+
     /**
      * 创建一个客户端
      * @return: void
      * @date: 2019/5/1 10:10
      */
     public static void createClient () {
-        try {
-            Bootstrap bootstrap = new Bootstrap();
-            bootstrap.group(new NioEventLoopGroup())
-                    .channel(NioSocketChannel.class)
-                    .remoteAddress("127.0.0.1", 2333)
-                    .handler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel ch) throws Exception {
-                            String delimiter = "_$";
-                            // 对服务端返回的消息通过_$进行分隔，并且每次查找的最大大小为1024字节
-                            ch.pipeline().addLast(new DelimiterBasedFrameDecoder(1024, Unpooled.wrappedBuffer(delimiter.getBytes())));
-                            // 对客户端发送的数据进行编码，这里主要是在客户端发送的数据最后添加分隔符
-                            ch.pipeline().addLast(new DelimiterBasedFrameEncoder(delimiter));
-                            ch.pipeline().addLast(new ClientHandler());
-                        }
-                    });
-            ChannelFuture future = bootstrap.connect().sync();
-            future.channel().closeFuture().sync();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        Bootstrap bootstrap = new Bootstrap();
+        bootstrap.group(new NioEventLoopGroup())
+                .channel(NioSocketChannel.class)
+                .remoteAddress("127.0.0.1", 2333)
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(new FixedLengthFrameDecoder(20));
+                        ch.pipeline().addLast(new StringDecoder());
+                        ch.pipeline().addLast(new ClientHandler());
+                    }
+                });
+        ChannelFuture channelFuture = bootstrap.connect();
+        channelFuture.addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                if (channelFuture.isSuccess()) {
+                    if (!SessionUtil.createChannelSession(channelFuture.channel())) {
+                        channelFuture.channel().close();
+                    }
+
+                    session = SessionUtil.getChannelSession(channelFuture.channel());
+                }
+            }
+        });
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // 线程池
-        int num = 1;
-        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(4, 600, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue());
-        for (int i = 0; i < num; i++) {
-            threadPool.execute(() -> createClient());
+        createClient();
+        BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
+        while (true) {
+            String readLine = console.readLine();
+            if (!StringUtils.isEmpty(readLine)) {
+                SessionUtil.REQ_COUNT = Integer.valueOf(readLine);
+                for (int i = 1; i <= SessionUtil.REQ_COUNT; i++) {
+                    byte[] msg = (i + System.getProperty("line.separator")).getBytes();
+                    ByteBuf byteBuf = Unpooled.buffer(msg.length);
+                    byteBuf.writeBytes(msg);
+                    session.getChannel().write(byteBuf);
+
+                    if (i % 2000 == 0) {
+                        session.getChannel().flush();
+                    }
+                }
+            } else {
+                System.out.println("end");
+                break;
+            }
         }
+
     }
 }
