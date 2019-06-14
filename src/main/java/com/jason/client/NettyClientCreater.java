@@ -5,13 +5,12 @@ import com.jason.TSession;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelInitializer;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.FixedLengthFrameDecoder;
+import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import org.springframework.util.StringUtils;
 
@@ -42,7 +41,7 @@ public class NettyClientCreater {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(new FixedLengthFrameDecoder(20));
+                        ch.pipeline().addLast(new LineBasedFrameDecoder(1024));
                         ch.pipeline().addLast(new StringDecoder());
                         ch.pipeline().addLast(new ClientHandler());
                     }
@@ -70,8 +69,9 @@ public class NettyClientCreater {
             String readLine = console.readLine();
             if (!StringUtils.isEmpty(readLine)) {
                 SessionUtil.REQ_COUNT = Integer.valueOf(readLine);
+                String split = System.getProperty("line.separator");
                 for (int i = 1; i <= SessionUtil.REQ_COUNT; i++) {
-                    byte[] msg = (i + System.getProperty("line.separator")).getBytes();
+                    byte[] msg = ("客户端消息:" + split).getBytes();
                     ByteBuf byteBuf = Unpooled.buffer(msg.length);
                     byteBuf.writeBytes(msg);
                     session.getChannel().write(byteBuf);

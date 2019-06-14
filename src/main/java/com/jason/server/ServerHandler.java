@@ -1,5 +1,7 @@
 package com.jason.server;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -27,9 +29,13 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         }
         atomicInteger.incrementAndGet();
 
-        if (atomicInteger.get() % 100000 == 0) {
-            System.out.println("处理了消息：" + atomicInteger.get() + ",时间：" + (System.currentTimeMillis() - pressStartTime) / 1000 + "s");
-        }
+//        if (atomicInteger.get() % 100000 == 0) {
+            System.out.println("处理了消息：" + msg + ",时间：" + (System.currentTimeMillis() - pressStartTime) / 1000 + "s");
+//        }
+        byte[] returnMsg = "服务器返回信息\n".getBytes();
+        ByteBuf byteBuf = Unpooled.buffer(returnMsg.length);
+        byteBuf.writeBytes(returnMsg);
+        ctx.channel().writeAndFlush(byteBuf);
     }
 
     @Override

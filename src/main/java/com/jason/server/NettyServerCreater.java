@@ -1,18 +1,13 @@
 package com.jason.server;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
-import io.netty.util.concurrent.DefaultEventExecutor;
-import io.netty.util.concurrent.EventExecutorGroup;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -37,7 +32,8 @@ public class NettyServerCreater implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        startUp();
+        new Thread(() -> startUp()).start();
+//        startUp();
     }
 
     /**
@@ -45,7 +41,7 @@ public class NettyServerCreater implements InitializingBean {
      * @return: void
      * @date: 2019/4/30 19:52
      */
-    public void startUp() throws InterruptedException {
+    public void startUp() {
         if (isInit) {
             // 已被初始化
             return;
@@ -53,7 +49,7 @@ public class NettyServerCreater implements InitializingBean {
 
         ServerBootstrap serverBootstrap = new ServerBootstrap();
         EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup(10);
+        EventLoopGroup workerGroup = new NioEventLoopGroup(100);
         ServerHandler serverHandler = new ServerHandler();
         serverBootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
@@ -74,11 +70,15 @@ public class NettyServerCreater implements InitializingBean {
                         ch.pipeline().addLast(serverHandler);
                     }
                 });
-        // 阻塞当前线程直到完成绑定
-        ChannelFuture future = serverBootstrap.bind().sync();
-        System.out.println("-------------------Netty服务器启动");
-        isInit = true;
-        // 主线程退出，子线程真正监听和接受请求
-        future.channel().closeFuture().sync();
+        try {
+            // 阻塞当前线程直到完成绑定
+            ChannelFuture future = serverBootstrap.bind().sync();
+            System.out.println("-------------------Netty服务器启动");
+            isInit = true;
+            // 主线程退出，子线程真正监听和接受请求
+            future.channel().closeFuture().sync();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
