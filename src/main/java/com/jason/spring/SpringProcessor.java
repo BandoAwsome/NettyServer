@@ -1,5 +1,6 @@
 package com.jason.spring;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
@@ -14,7 +15,7 @@ public class SpringProcessor {
     private static final SpringProcessor instance = new SpringProcessor();
 
     /** Spring容器 */
-    private AnnotationConfigApplicationContext applicationContext;
+    private ApplicationContext applicationContext;
 
     private SpringProcessor() {}
 
@@ -27,11 +28,12 @@ public class SpringProcessor {
      * @return: void
      * @date: 2019/4/30 19:32
      */
-    public void init() {
-        applicationContext = new AnnotationConfigApplicationContext();
-        applicationContext.register(ApplicationConfig.class);
-        System.out.println("-------------------Spring启动");
-        applicationContext.refresh();
+    public void init(ApplicationContext applicationContext) {
+//        applicationContext = new AnnotationConfigApplicationContext();
+//        applicationContext.register(ApplicationConfig.class);
+//        System.out.println("-------------------Spring启动");
+//        applicationContext.refresh();
+        this.applicationContext = applicationContext;
     }
 
     /**
@@ -40,10 +42,10 @@ public class SpringProcessor {
      * @return: java.lang.Object
      * @date: 2019/5/1 11:31
      */
-    public Object getBean(String beanName) {
+    public Object getBean(String beanName) throws Exception {
         if (applicationContext == null) {
             // 未初始化
-            init();
+            throw new Exception("Spring未正确初始化");
         }
         return applicationContext.getBean(beanName);
     }

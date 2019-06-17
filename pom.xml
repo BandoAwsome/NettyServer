@@ -67,11 +67,12 @@
             <scope>system</scope>
             <systemPath>${env.JAVA_HOME}/lib/tools.jar</systemPath>
         </dependency>
-        <dependency>
-            <groupId>jason</groupId>
-            <artifactId>javaagent</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
+<!--        用于动更-->
+<!--        <dependency>-->
+<!--            <groupId>jason</groupId>-->
+<!--            <artifactId>javaagent</artifactId>-->
+<!--            <version>1.0-SNAPSHOT</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>

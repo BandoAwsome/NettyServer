@@ -1,4 +1,4 @@
-package com.jason;
+package com.jason.session;
 
 import io.netty.channel.Channel;
 import io.netty.util.Attribute;
@@ -14,7 +14,7 @@ public class SessionUtil {
 
     private static final AttributeKey<TSession> SESSION_KEY = AttributeKey.valueOf("session-key");
 
-    public static final boolean createChannelSession(Channel channel) {
+    public final static boolean createChannelSession(Channel channel) {
         Attribute sessionAttr = channel.attr(SESSION_KEY);
         return sessionAttr.compareAndSet(null, new TSession(channel));
     }

@@ -31,9 +31,8 @@ public class NettyServerCreater implements InitializingBean {
     private static volatile boolean isInit = false;
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         new Thread(() -> startUp()).start();
-//        startUp();
     }
 
     /**
@@ -73,7 +72,7 @@ public class NettyServerCreater implements InitializingBean {
         try {
             // 阻塞当前线程直到完成绑定
             ChannelFuture future = serverBootstrap.bind().sync();
-            System.out.println("-------------------Netty服务器启动");
+            System.out.println("-------------------Netty服务器启动, 端口: " + environment.getProperty("netty.server.port", Integer.class));
             isInit = true;
             // 主线程退出，子线程真正监听和接受请求
             future.channel().closeFuture().sync();

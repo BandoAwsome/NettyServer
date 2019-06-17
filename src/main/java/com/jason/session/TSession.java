@@ -1,4 +1,4 @@
-package com.jason;
+package com.jason.session;
 
 import io.netty.channel.Channel;
 
