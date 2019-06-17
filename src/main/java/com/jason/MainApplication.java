@@ -1,6 +1,7 @@
 package com.jason;
 
 import com.jason.spring.SpringProcessor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;
@@ -15,6 +16,7 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @SpringBootConfiguration
 @ComponentScan
+@Slf4j
 public class MainApplication implements CommandLineRunner {
 
     public static void main(String[] args) {
