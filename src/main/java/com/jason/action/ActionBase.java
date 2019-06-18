@@ -1,5 +1,7 @@
 package com.jason.action;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -8,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
  * @version 1.0.0
  * @date 2019/5/7 16:09
  */
+@Slf4j
 public class ActionBase {
 
     /**
@@ -24,6 +27,8 @@ public class ActionBase {
             e.printStackTrace();
         } catch (InvocationTargetException e) {
             e.printStackTrace();
+        } finally {
+            log.info("访问接口:" + this.getClass() + "@" + method);
         }
         return "";
     }

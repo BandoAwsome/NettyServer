@@ -21,12 +21,13 @@ public class MainApplication implements CommandLineRunner {
 
     public static void main(String[] args) {
         ApplicationContext applicationContext = SpringApplication.run(MainApplication.class, args);
+        // 初始化Spring工厂
         SpringProcessor.getInstance().init(applicationContext);
     }
 
     @Override
     public void run(String... args) {
-        System.out.println("-------------------Springboot启动");
+        log.info("SpringBoot启动");
     }
 
 }

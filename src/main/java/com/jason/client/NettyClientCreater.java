@@ -66,21 +66,13 @@ public class NettyClientCreater {
         BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
         while (true) {
             String readLine = console.readLine();
+            System.out.println(readLine);
             if (!StringUtils.isEmpty(readLine)) {
-                SessionUtil.REQ_COUNT = Integer.valueOf(readLine);
                 String split = System.getProperty("line.separator");
-                for (int i = 1; i <= SessionUtil.REQ_COUNT; i++) {
-                    byte[] msg = ("客户端消息:" + split).getBytes();
-                    ByteBuf byteBuf = Unpooled.buffer(msg.length);
-                    byteBuf.writeBytes(msg);
-                    session.getChannel().write(byteBuf);
-                    if (i % 2000 == 0) {
-                        session.getChannel().flush();
-                    }
-                }
-            } else {
-                System.out.println("end");
-                break;
+                byte[] msg = (readLine + split).getBytes();
+                ByteBuf byteBuf = Unpooled.buffer(msg.length);
+                byteBuf.writeBytes(msg);
+                session.getChannel().writeAndFlush(byteBuf);
             }
         }
 

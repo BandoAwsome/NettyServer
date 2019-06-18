@@ -1,10 +1,13 @@
 package com.jason.server;
 
+import com.jason.action.ActionBase;
+import com.jason.spring.SpringProcessor;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -17,22 +20,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ChannelHandler.Sharable
 public class ServerHandler extends ChannelInboundHandlerAdapter {
 
-    private long pressStartTime;
-
-    private AtomicInteger atomicInteger = new AtomicInteger();
-
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (atomicInteger.get() == 0) {
-            // 标志压测开始
-            pressStartTime = System.currentTimeMillis();
+        String actionParam = (String) msg;
+        if (!actionParam.contains("@")) {
+            // 丢弃
+            return;
         }
-        atomicInteger.incrementAndGet();
-
-//        if (atomicInteger.get() % 100000 == 0) {
-            System.out.println("处理了消息：" + msg + ",时间：" + (System.currentTimeMillis() - pressStartTime) / 1000 + "s");
-//        }
-        byte[] returnMsg = "服务器返回信息\n".getBytes();
+        String actionName = actionParam.substring(0, actionParam.indexOf("@"));
+        String methodName = actionParam.substring(actionParam.indexOf("@") + 1);
+        ActionBase action = (ActionBase) SpringProcessor.getInstance().getBean(actionName);
+        byte[] returnMsg = (action.dealMessage(methodName) + "\n").getBytes();
         ByteBuf byteBuf = Unpooled.buffer(returnMsg.length);
         byteBuf.writeBytes(returnMsg);
         ctx.channel().writeAndFlush(byteBuf);
