@@ -7,9 +7,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import lombok.extern.slf4j.Slf4j;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Netty服务器Channel处理
@@ -29,6 +26,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         }
         String actionName = actionParam.substring(0, actionParam.indexOf("@"));
         String methodName = actionParam.substring(actionParam.indexOf("@") + 1);
+        // 获得bean
         ActionBase action = (ActionBase) SpringProcessor.getInstance().getBean(actionName);
         byte[] returnMsg = (action.dealMessage(methodName) + "\n").getBytes();
         ByteBuf byteBuf = Unpooled.buffer(returnMsg.length);

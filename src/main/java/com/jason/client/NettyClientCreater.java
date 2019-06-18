@@ -69,10 +69,12 @@ public class NettyClientCreater {
             System.out.println(readLine);
             if (!StringUtils.isEmpty(readLine)) {
                 String split = System.getProperty("line.separator");
-                byte[] msg = (readLine + split).getBytes();
-                ByteBuf byteBuf = Unpooled.buffer(msg.length);
-                byteBuf.writeBytes(msg);
-                session.getChannel().writeAndFlush(byteBuf);
+                for (int i = 0; i < 100000; i++) {
+                    byte[] msg = (readLine + split).getBytes();
+                    ByteBuf byteBuf = Unpooled.buffer(msg.length);
+                    byteBuf.writeBytes(msg);
+                    session.getChannel().writeAndFlush(byteBuf);
+                }
             }
         }
 

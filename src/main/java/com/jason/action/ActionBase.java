@@ -1,6 +1,7 @@
 package com.jason.action;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StopWatch;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -13,6 +14,8 @@ import java.lang.reflect.InvocationTargetException;
 @Slf4j
 public class ActionBase {
 
+    private StopWatch stopWatch = new StopWatch();
+
     /**
      * 反射回调方法
      * @return: void
@@ -20,6 +23,7 @@ public class ActionBase {
      */
     public String dealMessage(String method) {
         try {
+            stopWatch.start();
             return (String) this.getClass().getDeclaredMethod(method).invoke(this, null);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
@@ -28,7 +32,8 @@ public class ActionBase {
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         } finally {
-            log.info("访问接口:" + this.getClass() + "@" + method);
+            stopWatch.stop();
+            log.info("访问接口:" + this.getClass() + "@" + method + " 耗时:" + stopWatch.getLastTaskTimeMillis());
         }
         return "";
     }
