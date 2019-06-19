@@ -1,6 +1,12 @@
 package com.jason.action;
 
+import com.jason.jpa.entity.Student;
+import com.jason.jpa.service.StudentService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 打印Action
@@ -11,12 +17,13 @@ import org.springframework.stereotype.Component;
 @Component("print")
 public class PrintAction extends ActionBase {
 
+    @Autowired
+    private StudentService studentService;
+
     public String print() {
-//        try {
-//            Thread.sleep(1000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-        return "原来的服务器逻辑";
+        LocalDateTime now = LocalDateTime.now();
+        List<Student> all = studentService.findAll();
+
+        return now.toString();
     }
 }
