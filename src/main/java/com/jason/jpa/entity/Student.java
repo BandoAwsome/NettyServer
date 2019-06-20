@@ -20,7 +20,4 @@ public class Student {
     @Id
     private int id;
 
-    public Student() {
-
-    }
 }

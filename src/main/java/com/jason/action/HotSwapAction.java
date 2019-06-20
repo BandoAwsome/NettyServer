@@ -12,9 +12,14 @@ import java.util.List;
  * @version 1.0.0
  * @date 2019/5/7 16:35
  */
-@Component("hotswap")
+@Component("hotswapAction")
 public class HotSwapAction extends ActionBase{
 
+    /**
+     * 开始动更
+     * @return: java.lang.String
+     * @date: 2019/6/20 19:40
+     */
     public String hotswap() {
         try {
             List<VirtualMachineDescriptor> list = VirtualMachine.list();
