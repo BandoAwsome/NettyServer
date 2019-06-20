@@ -3,6 +3,8 @@ package com.jason.jpa.service;
 import com.jason.jpa.entity.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 /**
  * StudentService
  * @author zhuzhenhao

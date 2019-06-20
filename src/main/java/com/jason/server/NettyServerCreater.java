@@ -10,8 +10,6 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.util.concurrent.DefaultEventExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
@@ -27,11 +25,11 @@ import java.util.concurrent.Executors;
 @Component("nettyServer")
 public class NettyServerCreater implements InitializingBean {
 
-    @Autowired
-    Environment environment;
-
     /** 服务器只能被初始化一次 */
     private static volatile boolean isInit = false;
+
+    /** 端口 */
+    private final int port = 2333;
 
     @Override
     public void afterPropertiesSet() {
@@ -63,7 +61,7 @@ public class NettyServerCreater implements InitializingBean {
                 .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(32 * 1024, 64*1024))
 //                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
 //                .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                .localAddress(new InetSocketAddress(environment.getProperty("netty.server.port", Integer.class)))
+                .localAddress(new InetSocketAddress(port))
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline().addLast(new LineBasedFrameDecoder(1024));
@@ -75,7 +73,7 @@ public class NettyServerCreater implements InitializingBean {
         try {
             // 阻塞当前线程直到完成绑定
             ChannelFuture future = serverBootstrap.bind().sync();
-            log.info("Netty服务器启动, 端口: " + environment.getProperty("netty.server.port", Integer.class));
+            log.info("Netty服务器启动, 端口: " + port);
             isInit = true;
             // 主线程退出，子线程真正监听和接受请求
             future.channel().closeFuture().sync();

@@ -13,7 +13,7 @@ import javax.persistence.Table;
  * @date 2019/6/19 19:27
  */
 @Entity
-@Table(name = "test")
+@Table(name = "student")
 @Data
 public class Student {
 

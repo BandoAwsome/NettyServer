@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
@@ -20,7 +21,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @ComponentScan
 @Slf4j
 @EnableJpaRepositories("com.jason.jpa.service")
-@EntityScan("com.jason.jpa.entity")
+@EnableAutoConfiguration
 public class MainApplication implements CommandLineRunner {
 
     public static void main(String[] args) {
