@@ -18,6 +18,16 @@ import javax.persistence.Table;
 public class Student {
 
     @Id
+    /** id */
     private int id;
+
+    /** 姓名 */
+    private String name;
+
+    /** 年级 */
+    private int grade;
+
+    /** 成绩 */
+    private int score;
 
 }
